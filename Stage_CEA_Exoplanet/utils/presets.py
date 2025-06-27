@@ -1,8 +1,8 @@
 import pandas as pd 
-from Stage_CEA_Exoplanet.utils.filters import apply_filters
+from utils.filters import apply_filters
 
 df = pd.read_csv(
-    r"C:\Users\simon\OneDrive\Bureau\Stage\Dataset\Confirmed_Data.csv", 
+    r"C:\Users\vireg\Stage_CEA_Exoplanet_VR\Dataset\Confirmed_Data.csv", 
     comment='#'
     )
 df.columns = df.columns.str.strip()
@@ -105,14 +105,14 @@ MISSION_PRESETS = {
 # ------------------------ PAPER PRESETS ------------------------
 
 def Fulton_2017():
-    return apply_filters(df, 
+    return apply_filters(df,
                          mission='Kepler', date_max=2017, kp=14.2,
                          Teff_min=4700, Teff_max=6500, Fulton_2017=True,
                          b=0.7
                          )
 
 def Luque_Paille_2022():
-    return apply_filters(df, 
+    return apply_filters(df,
                          date_max=2022,
                          st_type='M',
                          rade_max=4, rade_err=0.08, mass_max=20,mass_err=0.25)
