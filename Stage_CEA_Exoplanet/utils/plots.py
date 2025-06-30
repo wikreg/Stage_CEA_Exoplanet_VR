@@ -102,7 +102,7 @@ def plot_radii_vs_mass_Mtype(df_filtered):
 
 
 # ------------------------------------------------------------------------------
-# Plot Planetary Radius vs Mass for M-type stars, colored by equilibrium temperature with comparaison.
+# Plot Planetary Radius vs Mass for planets around M-type stars, colored by equilibrium temperature.
 # ------------------------------------------------------------------------------
 def plot_radii_vs_mass_Mtype_comparaison(df_filtered):
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -175,7 +175,7 @@ def plot_radii_vs_mass_Mtype_comparaison(df_filtered):
 
 
 # ------------------------------------------------------------------------------
-# Plot Planetary density/earth density vs Mass for M-type stars.
+# Plot Planetary density/earth density vs Mass for planets around M-type stars.
 # ------------------------------------------------------------------------------
 def classify_planet(mass, density_ratio):
     earth_like = 1
@@ -236,11 +236,10 @@ def plot_density_vs_mass_Mtype(df_filtered):
 
 
 # ------------------------------------------------------------------------------
-# Plot histogram of planet density/earth density in the filtered dataset.
+# Plot histogram of planet density/earth density for planets around M-type stars.
 # ------------------------------------------------------------------------------
-# Classification function based on mass and normalized density
 def classify_planet(mass, density_ratio):
-    mid_density = (1 + 2.11 / 4.79) / 2  # ~0.72
+    mid_density = (1 + 2.11 / 4.79) / 2
 
     if density_ratio >= mid_density:
         return 'saddlebrown'      # Earth-like
@@ -249,35 +248,31 @@ def classify_planet(mass, density_ratio):
     else:
         return 'darkblue'         # Sub-Neptune
 
-# Darken color helper
+# Darken color
 def darken_color(color, amount=0.6):
-    """
-    Darken a given matplotlib color by scaling RGB components.
-    amount < 1 makes color darker.
-    """
     c = np.array(mcolors.to_rgb(color))
     return c * amount
 
-# Function to plot histogram bars with small gaps
+# Histogram with gaps for esthetic purposes
 def plot_histogram_with_gaps(data, bins, color='steelblue', ax=None, label=None):
     if ax is None:
         ax = plt.gca()
 
     counts, _ = np.histogram(data, bins=bins)
     bin_width = bins[1] - bins[0]
-    bar_width = bin_width * 0.9  # 90% width to create gaps
+    bar_width = bin_width * 0.9  
     bin_centers = bins[:-1] + bin_width / 2
 
     ax.bar(bin_centers, counts, width=bar_width, color=color, edgecolor='black', label=label, align='center')
 
-# Main plotting function with Gaussian fits and darker lines
+# Plot histogram with gaussian fit
 def plot_histogram_density_Mtype_with_gauss(df_filtered):
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    # Calculate normalized density ratio
+    # Planets density ratio calculation
     df_filtered['density_ratio'] = df_filtered['pl_dens'] / 4.79
 
-    # Classify planets
+    # Planets category classification
     df_filtered['category'] = df_filtered.apply(
         lambda row: classify_planet(row['pl_bmasse'], row['density_ratio']),
         axis=1
@@ -285,9 +280,9 @@ def plot_histogram_density_Mtype_with_gauss(df_filtered):
 
     # Define bins once over entire dataset density_ratio range
     all_density = df_filtered['density_ratio']
-    bins = np.linspace(all_density.min(), all_density.max(), 21)  # 20 bins
+    bins = np.linspace(all_density.min(), all_density.max(), 21)
 
-    # Colors and labels for categories
+    # Colors and labels
     categories = ['saddlebrown', 'lightskyblue', 'darkblue']
     labels = ['Earth-like', 'Water World', 'Sub-Neptune']
 
