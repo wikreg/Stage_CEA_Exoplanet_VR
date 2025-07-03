@@ -10,7 +10,7 @@ from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
 from scipy.stats import norm
 import matplotlib.colors as mcolors
-
+from scipy.stats import linregress
 
 # ------------------------------------------------------------------------------
 # Utility function to display a DataFrame in a scrollable table format.
@@ -122,37 +122,97 @@ def plot_radii_vs_mass_Mtype_comparaison(df_filtered):
     cbar = plt.colorbar(scatter, ax=ax)
     cbar.set_label("Equilibrium Temperature (K)")
 
-    x = np.array([
+    earth_like_x = np.array([
         2.2233, 2.7682, 3.4297, 4.2296,
         5.1932, 6.3505, 7.7363, 9.3912, 11.3628, 13.7066, 16.4870
     ])
-    y = np.array([
+    earth_like_y = np.array([
         1.2485, 1.3245, 1.4019, 1.4806,
         1.5604, 1.6412, 1.7228, 1.8052, 1.8883, 1.9719, 2.0559
     ])
 
-    cs = CubicSpline(x, y, extrapolate=True)
+    cs = CubicSpline(earth_like_x, earth_like_y, extrapolate=True)
     x_extended = np.logspace(np.log10(0.6), np.log10(16), 200)
     y_extended = cs(x_extended)
 
-    xx = [
+    H2O_50_700k_x = [
         0.5, 0.7, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 8.0,
         10.0, 12.0, 16.0
     ]
 
         # Radii (in Earth radii)
-    yy = [
+    H2O_50_700k_y = [
         1.232, 1.302, 1.392, 1.512, 1.609, 1.762, 1.881, 1.981, 2.205,
         2.319, 2.415, 2.571
     ]
 
-    spline = CubicSpline(xx, yy, extrapolate=True)
+    H2O_50_1000k_x = [
+        0.5, 0.7, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 8.0,
+        10.0, 12.0, 16.0
+    ]
+
+        # Radii (in Earth radii)
+    H2O_50_1000k_y = [ 
+        1.397, 1.438, 1.511, 1.612, 1.696, 1.832, 1.942, 2.034, 2.247, 
+        2.356, 2.448, 2.6
+    ]
+
+    H2O_50_500k_x = [
+        0.5, 0.7, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 8.0,
+        10.0, 12.0, 16.0
+    ]
+
+        # Radii (in Earth radii)
+    H2O_50_500k_y = [ 
+        1.118, 1.207, 1.314, 1.448, 1.553, 1.717, 1.842, 1.946, 2.178,
+        2.294, 2.393, 2.553
+    ]
+
+    H2O_50_300k_x = [
+        0.5, 0.595, 0.707, 0.841, 1.0, 1.189, 1.414, 1.682, 2.0,
+        4.0, 8.0, 16.0
+    ]
+
+        # Radii (in Earth radii)
+    H2O_50_300k_y = [ 
+        1.018, 1.07, 1.125, 1.182, 1.241, 1.302, 1.366, 1.432, 1.502,
+        1.805, 2.152, 2.553
+    ]
+
+    spline = CubicSpline(H2O_50_700k_x, H2O_50_700k_y, extrapolate=True)
 
     # Create new x range from 0 to 16
-    xx_extended = np.logspace(np.log10(0.6), np.log10(16), 200)
-    yy_extended = spline(xx_extended)
+    H2O_50_700k_x_extended = np.logspace(np.log10(0.6), np.log10(16), 200)
+    H2O_50_700k_y_extended = spline(H2O_50_700k_x_extended)
 
-    plt.plot(xx_extended, yy_extended, linestyle='-', color='blue', label='50%H2O', zorder=1)
+    plt.plot(H2O_50_700k_x_extended, H2O_50_700k_y_extended, linestyle='-', color='blue', label='50%H2O 700k', zorder=1)
+    plt.legend()
+
+
+    spline = CubicSpline(H2O_50_1000k_x, H2O_50_1000k_y, extrapolate=True)
+
+    H2O_50_1000k_x_extended = np.logspace(np.log10(0.6), np.log10(16), 200)
+    H2O_50_1000k_y_extended = spline(H2O_50_1000k_x_extended)
+
+    plt.plot(H2O_50_1000k_x_extended, H2O_50_1000k_y_extended, linestyle='-', color='royalblue', label='50%H2O 1000k', zorder=1)
+    plt.legend()
+
+
+    spline = CubicSpline(H2O_50_500k_x, H2O_50_500k_y, extrapolate=True)
+
+    H2O_50_500k_x_extended = np.logspace(np.log10(0.6), np.log10(16), 200)
+    H2O_50_500k_y_extended = spline(H2O_50_500k_x_extended)
+
+    plt.plot(H2O_50_500k_x_extended, H2O_50_500k_y_extended, linestyle='-', color='dodgerblue', label='50%H2O 500k', zorder=1)
+    plt.legend()
+
+
+    spline = CubicSpline(H2O_50_300k_x, H2O_50_300k_y, extrapolate=True)
+
+    H2O_50_300k_x_extended = np.logspace(np.log10(0.6), np.log10(16), 200)
+    H2O_50_300k_y_extended = spline(H2O_50_300k_x_extended)
+
+    plt.plot(H2O_50_300k_x_extended, H2O_50_300k_y_extended, linestyle='-', color='deepskyblue', label='50%H2O 500k', zorder=1)
     plt.legend()
 
         # Plot
@@ -328,6 +388,77 @@ def plot_histogram(df_filtered):
     ax.set_xlabel("Planet Radius ($R_{\\oplus}$)")
     ax.set_ylabel("Number of Planets")
     ax.set_title("Distribution of Planet Radii")
+
+    plt.tight_layout()
+    plt.show()
+
+
+
+
+# ------------------------------------------------------------------------------
+# Plot Planetary Radius vs Period for M-type stars.
+# ------------------------------------------------------------------------------
+def plot_radii_vs_period_Mtype(df_filtered):
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # Extract data and remove NaNs
+    x = df_filtered['pl_orbper'].values
+    y = df_filtered['pl_rade'].values
+    mask = np.isfinite(x) & np.isfinite(y)
+    x = x[mask]
+    y = y[mask]
+
+    # Scatter plot
+    ax.scatter(x, y, s=25, zorder=1, label="Planets", edgecolors='black')
+
+    # Linear fit
+    slope, intercept, r_value, p_value, std_err = linregress(x, y)
+    x_fit = np.linspace(x.min(), x.max(), 200)
+    y_fit = slope * x_fit + intercept
+
+    # Plot the fit line
+    ax.plot(x_fit, y_fit, color='blue', linestyle='-', linewidth=2)
+
+    # Formatting
+    ax.xaxis.set_major_formatter(ScalarFormatter())
+    ax.set_xlabel("Period (days)")
+    ax.set_ylabel("Radius ($R_{\\oplus}$)")
+    ax.legend()
+
+    plt.tight_layout()
+    plt.show()
+
+
+
+    # ------------------------------------------------------------------------------
+# Plot Planetary Radius vs Period for M-type stars.
+# ------------------------------------------------------------------------------
+def plot_density_vs_period_Mtype(df_filtered):
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # Extract data and remove NaNs
+    x = df_filtered['pl_orbper'].values
+    y = df_filtered['pl_dens'].values/4.79
+    mask = np.isfinite(x) & np.isfinite(y)
+    x = x[mask]
+    y = y[mask]
+
+    # Scatter plot
+    ax.scatter(x, y, s=25, zorder=1, label="Planets", edgecolors='black')
+
+    # Linear fit
+    slope, intercept, r_value, p_value, std_err = linregress(x, y)
+    x_fit = np.linspace(x.min(), x.max(), 200)
+    y_fit = slope * x_fit + intercept
+
+    # Plot the fit line
+    ax.plot(x_fit, y_fit, color='blue', linestyle='-', linewidth=2)
+
+    # Formatting
+    ax.xaxis.set_major_formatter(ScalarFormatter())
+    ax.set_xlabel("Period (days)")
+    ax.set_ylabel("Density ($\\rho / \\rho_\\oplus$)")
+    ax.legend()
 
     plt.tight_layout()
     plt.show()
