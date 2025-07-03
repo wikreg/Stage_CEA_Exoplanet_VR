@@ -8,7 +8,7 @@ planetary, and system parameters.
 Usage:
     See sample
 
-Author: S.WITTMANN & V.RAGNER
+Author: S.WITTMANN & V.REGNARD
 Repository: https://github.com/SimonWtmn/Stage_CEA_Exoplanet
 """
 

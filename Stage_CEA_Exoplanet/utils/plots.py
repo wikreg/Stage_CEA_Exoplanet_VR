@@ -70,21 +70,33 @@ def plot_sample_stellar_radi_vs_teff(df, df_filtered):
 # ------------------------------------------------------------------------------
 # Plot Planetary Radius vs Mass for M-type stars, colored by equilibrium temperature.
 # ------------------------------------------------------------------------------
-def plot_radii_vs_mass_Mtype(df_filtered):
+def plot_radii_vs_mass_Mtype(df_filtered, df_JWST):
     fig, ax = plt.subplots(figsize=(10, 6))
+
+    is_jwst = df_filtered['pl_name'].isin(df_JWST['Planet'])
+    has_temp = df_filtered['pl_eqt'].notna()
 
     # Scatter plot with color mapped to equilibrium temperature
     scatter = ax.scatter(
         df_filtered['pl_bmasse'], df_filtered['pl_rade'],
-        c=df_filtered['pl_eqt'], cmap='plasma', s=25, zorder=1,
-        label="Planets"
+        c=df_filtered['pl_eqt'], cmap='plasma', s=25, zorder=1 
     )
 
+    
     # Add colorbar indicating equilibrium temperature
     cbar = plt.colorbar(scatter, ax=ax)
     cbar.set_label("Equilibrium Temperature (K)")
 
-    
+    circle = is_jwst & has_temp
+
+    plt.scatter(
+        df_filtered[circle]['pl_bmasse'], 
+        df_filtered[circle]['pl_rade'],
+        facecolors='none',           
+        edgecolors='red',            
+        linewidths=1.5,              
+        label='Observed by JWST'  
+    )
 
     # Log-log scaling for both axes
     ax.set_xscale('log')
@@ -104,8 +116,10 @@ def plot_radii_vs_mass_Mtype(df_filtered):
 # ------------------------------------------------------------------------------
 # Plot Planetary Radius vs Mass for planets around M-type stars, colored by equilibrium temperature.
 # ------------------------------------------------------------------------------
-def plot_radii_vs_mass_Mtype_comparaison(df_filtered):
+def plot_radii_vs_mass_Mtype_comparaison(df_filtered, df_JWST):
     fig, ax = plt.subplots(figsize=(10, 6))
+
+    is_jwst = df_filtered['pl_name'].isin(df_JWST['Planet'])
 
     brown_to_yellow = LinearSegmentedColormap.from_list(
     'BrownYellow', ['saddlebrown', 'khaki'], N=256
@@ -114,8 +128,16 @@ def plot_radii_vs_mass_Mtype_comparaison(df_filtered):
     # Scatter plot with color mapped to equilibrium temperature
     scatter = ax.scatter(
         df_filtered['pl_bmasse'], df_filtered['pl_rade'],edgecolors='black',linewidths=0.6,
-        c=df_filtered['pl_eqt'], cmap=brown_to_yellow, s=25, zorder=2,
-        label="Planets"
+        c=df_filtered['pl_eqt'], cmap=brown_to_yellow, s=25, zorder=2
+    )
+
+    plt.scatter(
+        df_filtered[is_jwst]['pl_bmasse'], 
+        df_filtered[is_jwst]['pl_rade'], 
+        facecolors='none',           
+        edgecolors='red',            
+        linewidths=1.5,              
+        label='Observed by JWST'  
     )
 
     # Add colorbar indicating equilibrium temperature
@@ -239,8 +261,8 @@ def plot_radii_vs_mass_Mtype_comparaison(df_filtered):
 # ------------------------------------------------------------------------------
 def classify_planet(mass, density_ratio):
     earth_like = 1
-    water_like = 2.11 / 4.79  # ~0.44
-    mid_density = (earth_like + water_like) / 2  # ~0.72
+    water_like = 2.11 / 4.79 
+    mid_density = (earth_like + water_like) / 2
 
     if density_ratio >= mid_density:
         return 'saddlebrown'      # Rocky (Earth-like)
@@ -249,8 +271,10 @@ def classify_planet(mass, density_ratio):
     else:
         return 'darkblue'         # Sub-Neptune
 
-def plot_density_vs_mass_Mtype(df_filtered):
+def plot_density_vs_mass_Mtype(df_filtered, df_JWST):
     fig, ax = plt.subplots(figsize=(10, 6))
+
+    is_jwst = df_filtered['pl_name'].isin(df_JWST['Planet'])
 
     df_filtered['density_ratio'] = df_filtered['pl_dens'] / 4.79
 
@@ -263,6 +287,15 @@ def plot_density_vs_mass_Mtype(df_filtered):
         df_filtered['pl_bmasse'], df_filtered['density_ratio'],
         c=df_filtered['color'], edgecolors='black', s=25, zorder=2,
         label="Filtered planets"
+    )
+
+    plt.scatter(
+        df_filtered[is_jwst]['pl_bmasse'], 
+        df_filtered[is_jwst]['density_ratio'], 
+        facecolors='none',           
+        edgecolors='red',            
+        linewidths=1.5,              
+        label='Observed by JWST'  
     )
 
     # Add reference lines
@@ -284,6 +317,8 @@ def plot_density_vs_mass_Mtype(df_filtered):
         Patch(facecolor='saddlebrown', edgecolor='black', label='Earth-like'),
         Patch(facecolor='lightskyblue', edgecolor='black', label='Water World'),
         Patch(facecolor='darkblue', edgecolor='black', label='Sub-Neptune'),
+        Line2D([0], [0], marker='o', color='red', markerfacecolor='none',
+           markeredgecolor='red', markersize=6, linestyle='None', label='Observed by JWST'),
         Line2D([0], [0], color='green', lw=1, label='Earth density'),
         Line2D([0], [0], color='blue', lw=1, label='50% H₂O density')
     ]
@@ -396,20 +431,20 @@ def plot_histogram(df_filtered):
 
 
 # ------------------------------------------------------------------------------
-# Plot Planetary Radius vs Period for M-type stars.
+# Plot Planetary Radius vs Period JWST.
 # ------------------------------------------------------------------------------
-def plot_radii_vs_period_Mtype(df_filtered):
+def plot_radii_vs_period_JWST(df_filtered):
     fig, ax = plt.subplots(figsize=(10, 6))
 
     # Extract data and remove NaNs
-    x = df_filtered['pl_orbper'].values
-    y = df_filtered['pl_rade'].values
+    x = df_filtered['Period (d)'].values
+    y = df_filtered['Radius (Re)'].values
     mask = np.isfinite(x) & np.isfinite(y)
     x = x[mask]
     y = y[mask]
 
     # Scatter plot
-    ax.scatter(x, y, s=25, zorder=1, label="Planets", edgecolors='black')
+    ax.scatter(x, y, s=25, zorder=1, edgecolors='black')
 
     # Linear fit
     slope, intercept, r_value, p_value, std_err = linregress(x, y)
@@ -420,6 +455,8 @@ def plot_radii_vs_period_Mtype(df_filtered):
     ax.plot(x_fit, y_fit, color='blue', linestyle='-', linewidth=2)
 
     # Formatting
+    ax.set_yscale('log')
+    ax.set_xscale('log')
     ax.xaxis.set_major_formatter(ScalarFormatter())
     ax.set_xlabel("Period (days)")
     ax.set_ylabel("Radius ($R_{\\oplus}$)")
@@ -430,21 +467,33 @@ def plot_radii_vs_period_Mtype(df_filtered):
 
 
 
-    # ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 # Plot Planetary Radius vs Period for M-type stars.
 # ------------------------------------------------------------------------------
-def plot_density_vs_period_Mtype(df_filtered):
+def plot_radii_vs_period_Mtype(df_filtered, df_JWST):
     fig, ax = plt.subplots(figsize=(10, 6))
+
+    is_jwst = df_filtered['pl_name'].isin(df_JWST['Planet'])
 
     # Extract data and remove NaNs
     x = df_filtered['pl_orbper'].values
-    y = df_filtered['pl_dens'].values/4.79
+    y = df_filtered['pl_rade'].values
     mask = np.isfinite(x) & np.isfinite(y)
     x = x[mask]
     y = y[mask]
 
     # Scatter plot
-    ax.scatter(x, y, s=25, zorder=1, label="Planets", edgecolors='black')
+    ax.scatter(x, y, s=25, zorder=1, edgecolors='black')
+
+    plt.scatter(
+        df_filtered[is_jwst]['pl_orbper'], 
+        df_filtered[is_jwst]['pl_rade'], 
+        facecolors='none',           
+        edgecolors='red',            
+        linewidths=1.5,              
+        label='Observed by JWST'  
+    )
 
     # Linear fit
     slope, intercept, r_value, p_value, std_err = linregress(x, y)
@@ -455,6 +504,57 @@ def plot_density_vs_period_Mtype(df_filtered):
     ax.plot(x_fit, y_fit, color='blue', linestyle='-', linewidth=2)
 
     # Formatting
+    ax.set_yscale('log')
+    ax.set_xscale('log')
+    ax.xaxis.set_major_formatter(ScalarFormatter())
+    ax.set_xlabel("Period (days)")
+    ax.set_ylabel("Radius ($R_{\\oplus}$)")
+    ax.legend()
+
+    plt.tight_layout()
+    plt.show()
+
+
+
+
+# ------------------------------------------------------------------------------
+# Plot Planetary Radius vs Period for M-type stars.
+# ------------------------------------------------------------------------------
+def plot_density_vs_period_Mtype(df_filtered, df_JWST):
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    is_jwst = df_filtered['pl_name'].isin(df_JWST['Planet'])
+
+    # Extract data and remove NaNs
+    x = df_filtered['pl_orbper'].values
+    y = df_filtered['pl_dens'].values/4.79
+    mask = np.isfinite(x) & np.isfinite(y)
+    x = x[mask]
+    y = y[mask]
+
+    # Scatter plot
+    ax.scatter(x, y, s=25, zorder=1, edgecolors='black')
+
+    plt.scatter(
+        df_filtered[is_jwst]['pl_orbper'], 
+        df_filtered[is_jwst]['pl_dens']/4.79, 
+        facecolors='none',           
+        edgecolors='red',            
+        linewidths=1.5,              
+        label='Observed by JWST'  
+    )
+
+    # Linear fit
+    slope, intercept, r_value, p_value, std_err = linregress(x, y)
+    x_fit = np.linspace(x.min(), x.max(), 200)
+    y_fit = slope * x_fit + intercept
+
+    # Plot the fit line
+    ax.plot(x_fit, y_fit, color='blue', linestyle='-', linewidth=2)
+
+    # Formatting
+    ax.set_yscale('log')
+    ax.set_xscale('log')
     ax.xaxis.set_major_formatter(ScalarFormatter())
     ax.set_xlabel("Period (days)")
     ax.set_ylabel("Density ($\\rho / \\rho_\\oplus$)")

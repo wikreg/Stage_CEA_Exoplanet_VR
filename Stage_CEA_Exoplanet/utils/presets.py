@@ -1,10 +1,12 @@
 import pandas as pd 
 from utils.filters import apply_filters
+from pathlib import Path
 
-df = pd.read_csv(
-    r"C:\Users\vireg\Stage_CEA_Exoplanet_VR\Dataset\Confirmed_Data.csv", 
-    comment='#'
-    )
+# ------------------------ DATASET PATH ------------------------
+csv_path1 = Path("..") / "Dataset" / "Confirmed_Data.csv"
+
+df = pd.read_csv(csv_path1, comment='#')
+
 df.columns = df.columns.str.strip()
 
 
@@ -113,7 +115,7 @@ def Fulton_2017():
 
 def Luque_Paille_2022():
     return apply_filters(df,
-                         date_max=2022,
+                         #date_max=2022,
                          st_type='M',
                          rade_max=4, rade_err=0.08, mass_max=20,mass_err=0.25)
 
